@@ -1,0 +1,48 @@
+____________________________________
+Dependencies:
+
+1. Operating System
+Tested on: Debian 12 “Bookworm” (64-bit)
+Should also work on other Debian-based Linux distributions
+
+Test rtl-sdr with this command prompt:
+rtl_fm -f 103.3M -M wbfm -s 200k -g 40 -r 48000 - | aplay -r 48000 -f S16_LE
+
+rtl_fm -f 100.3M -M wbfm -s 200k -g 40 -r 48000 - | aplay -r 48000 -f S16_LE
+
+2. System Packages / Libraries
+These are required to interface with the RTL-SDR hardware and provide core C libraries:
+
+sudo apt update
+sudo apt install -y \
+    rtl-sdr           # RTL-SDR USB drivers & utilities
+    librtlsdr-dev     # Development headers for pyrtlsdr
+    python3-venv      # To create isolated Python virtual environments
+    python3-full      # Ensures full Python installation
+    libusb-1.0-0-dev  # USB library required by pyrtlsdr
+    rtl_test          # Test RTL-SDR device
+    rtl_eeprom        # Read/write RTL-SDR EEPROM
+
+3. Python Environment
+
+Python 3.11+ recommended (Python 3.10+ should work)
+
+I used:
+    python3 -m venv ~/sdr-venv
+    source ~/sdr-venv/bin/activate
+    pip install --upgrade pip
+    pip install pyrtlsdr numpy
+
+Hardware:
+-RTL-SDR USB dongle (RTL2832U or compatible)
+-Antenna tuned for 315 MHz (your car fob frequency)
+-USB port with sufficient power
+
+____________________________________
+
+venv is necessary(deb12) for python script due to system conflicts. to open use:
+    source ~/sdr-venv/bin/activate
+then run:
+    python rtl_sdr_keyfob_detector.py
+to quit venv:
+    deactivate
