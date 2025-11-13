@@ -19,27 +19,27 @@ from datetime import datetime
 import numpy as np
 from rtlsdr import RtlSdr
 
-# -------------------- USER PARAMETERS --------------------
+#USER PARAMETERS --------------------
 CENTER_FREQ = 315e6        # Hz (315 MHz)
 SAMPLE_RATE = 1.024e6      # Hz (1.024 MS/s is commonly supported)
 GAIN = 'auto'              # or a number like 30
-BLOCK_DURATION = 0.2       # seconds per read block (0.1-0.5 is fine)
-SUBBLOCK_MS = 5            # milliseconds per envelope sample (e.g., 5 ms)
+BLOCK_DURATION = 0.1       # seconds per read block (0.1-0.5 is fine)
+SUBBLOCK_MS = 3            # milliseconds per envelope sample (e.g., 5 ms)
 CALIBRATION_SECONDS = 3.0  # collect this many seconds for noise-floor estimate
 THRESHOLD_FACTOR = 8.0     # detection threshold = noise_median * THRESHOLD_FACTOR
-HYSTERESIS_FACTOR = 0.6    # fraction to drop threshold for clearing
+HYSTERESIS_FACTOR = 0.3    # fraction to drop threshold for clearing
 DEBOUNCE_MS = 200          # minimum ms between printed triggers
-# ---------------------------------------------------------
 
+"""Read exactly n_samples from SDR and return complex64 numpy array."""
 def collect_block(sdr, n_samples):
-    """Read exactly n_samples from SDR and return complex64 numpy array."""
     return sdr.read_samples(n_samples)
 
+
+"""
+Convert IQ block -> array of mean power values for each subblock of subblock_ms length.
+Returns 1-D float32 numpy array of mean(power) per subblock.
+"""
 def block_envelope_means(iq_samples, sample_rate, subblock_ms=5):
-    """
-    Convert IQ block -> array of mean power values for each subblock of subblock_ms length.
-    Returns 1-D float32 numpy array of mean(power) per subblock.
-    """
     power = np.abs(iq_samples)**2  # instantaneous power
     subblock_len = max(1, int(sample_rate * (subblock_ms / 1000.0)))
     # trim samples to integer multiple of subblock_len
@@ -52,10 +52,10 @@ def block_envelope_means(iq_samples, sample_rate, subblock_ms=5):
     means = power_matrix.mean(axis=1).astype(np.float32)
     return means
 
+"""
+Read for calibration_seconds and return a robust noise estimate (median of subblock means).
+"""
 def calibrate_noise(sdr, sample_rate, block_duration, calibration_seconds, subblock_ms):
-    """
-    Read for calibration_seconds and return a robust noise estimate (median of subblock means).
-    """
     print(f"[i] Calibrating noise floor for {calibration_seconds:.1f} seconds... (keep keyfob quiet)")
     dims_per_block = int(block_duration * sample_rate)
     blocks_needed = max(1, int(np.ceil(calibration_seconds / block_duration)))
@@ -73,6 +73,7 @@ def calibrate_noise(sdr, sample_rate, block_duration, calibration_seconds, subbl
     noise_std = float(np.std(all_means))
     print(f"[i] Calibration done: median={noise_median:.4e}, mean={noise_mean:.4e}, std={noise_std:.4e}")
     return noise_median, noise_mean, noise_std
+
 
 def main():
     # Derived params
