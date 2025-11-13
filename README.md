@@ -34,11 +34,6 @@ Test rtl-sdr with these example command prompts:
 
 Python 3.11+ recommended (Python 3.10+ should work)
 
-I used:
-
-    python3 -m venv ~/sdr-venv
-    source ~/sdr-venv/bin/activate
-    pip install --upgrade pip
     pip install pyrtlsdr numpy
 
 ### Hardware:
@@ -47,8 +42,7 @@ I used:
 -USB port with sufficient power
 
 ## To run 
-venv is necessary(deb12) for python script due to system conflicts.
-
+Install environment dependencies in venv
 to open create a venv and run .py program:
 
     source ~/sdr-venv/bin/activate
@@ -60,4 +54,5 @@ to quit venv:
     deactivate
 
 ## Also included:
-- gnuradio-companion save file for locating target frequencies
+- gnuradio-companion file for demodulating key fob signals
+- gnuradio-companion file for analyzing radio spectrum
