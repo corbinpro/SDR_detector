@@ -1,2 +1,6 @@
 #virtual env
 venv/
+
+#key fob output
+fob_output.bin
+
