@@ -87,9 +87,9 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    append: 'True'
+    append: 'False'
     comment: ''
-    file: /home/hamburger/Desktop/SDR_detector/fob_output.txt
+    file: /home/hamburger/Desktop/SDR_detector/GRC_Companion/fob_output.bin
     type: byte
     unbuffered: 'False'
     vlen: '1'
@@ -201,40 +201,11 @@ blocks:
     coordinate: [1216, 84.0]
     rotation: 0
     state: enabled
-- name: qtgui_sink_x_0
-  id: qtgui_sink_x
-  parameters:
-    affinity: ''
-    alias: Raw signal tune
-    bw: samp_rate
-    comment: ''
-    fc: '0'
-    fftsize: '1024'
-    gui_hint: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    name: '""'
-    plotconst: 'True'
-    plotfreq: 'True'
-    plottime: 'True'
-    plotwaterfall: 'True'
-    rate: '10'
-    showports: 'False'
-    showrf: 'False'
-    type: complex
-    wintype: window.WIN_BLACKMAN_hARRIS
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [360, 492.0]
-    rotation: 0
-    state: enabled
 - name: qtgui_time_sink_x_0
   id: qtgui_time_sink_x
   parameters:
     affinity: ''
-    alias: ''
+    alias: low  pass out
     alpha1: '1.0'
     alpha10: '1.0'
     alpha2: '1.0'
@@ -324,7 +295,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [648, 452.0]
+    coordinate: [1264, 244.0]
     rotation: 0
     state: enabled
 - name: rtlsdr_source_0
@@ -688,13 +659,12 @@ blocks:
 connections:
 - [blocks_complex_to_mag_0, '0', low_pass_filter_1, '0']
 - [blocks_multiply_const_vxx_0, '0', digital_binary_slicer_fb_0, '0']
-- [blocks_multiply_const_vxx_0, '0', qtgui_time_sink_x_0, '0']
 - [digital_binary_slicer_fb_0, '0', blocks_file_sink_0, '0']
 - [freq_xlating_fir_filter_xxx_0, '0', low_pass_filter_0, '0']
 - [low_pass_filter_0, '0', blocks_complex_to_mag_0, '0']
 - [low_pass_filter_1, '0', blocks_multiply_const_vxx_0, '0']
+- [low_pass_filter_1, '0', qtgui_time_sink_x_0, '0']
 - [rtlsdr_source_0, '0', freq_xlating_fir_filter_xxx_0, '0']
-- [rtlsdr_source_0, '0', qtgui_sink_x_0, '0']
 
 metadata:
   file_format: 1
