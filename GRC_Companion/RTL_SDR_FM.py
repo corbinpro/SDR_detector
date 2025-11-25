@@ -91,10 +91,58 @@ class RTL_SDR_FM(gr.top_block, Qt.QWidget):
         self.rtlsdr_source_0.set_bb_gain(60, 0)
         self.rtlsdr_source_0.set_antenna('', 0)
         self.rtlsdr_source_0.set_bandwidth(0, 0)
+        self.qtgui_time_sink_x_1 = qtgui.time_sink_f(
+            1024, #size
+            samp_rate/8, #samp_rate
+            "bits", #name
+            1, #number of inputs
+            None # parent
+        )
+        self.qtgui_time_sink_x_1.set_update_time(0.10)
+        self.qtgui_time_sink_x_1.set_y_axis(-0.5, 1.5)
+
+        self.qtgui_time_sink_x_1.set_y_label('Amplitude', "")
+
+        self.qtgui_time_sink_x_1.enable_tags(True)
+        self.qtgui_time_sink_x_1.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_time_sink_x_1.enable_autoscale(False)
+        self.qtgui_time_sink_x_1.enable_grid(False)
+        self.qtgui_time_sink_x_1.enable_axis_labels(True)
+        self.qtgui_time_sink_x_1.enable_control_panel(False)
+        self.qtgui_time_sink_x_1.enable_stem_plot(False)
+
+
+        labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
+            'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ['blue', 'red', 'green', 'black', 'cyan',
+            'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+        styles = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        markers = [-1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1]
+
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_time_sink_x_1.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_time_sink_x_1.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_1.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_1.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_1.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_1.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_1.set_line_alpha(i, alphas[i])
+
+        self._qtgui_time_sink_x_1_win = sip.wrapinstance(self.qtgui_time_sink_x_1.qwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_time_sink_x_1_win)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_f(
             1024, #size
-            samp_rate, #samp_rate
-            "", #name
+            samp_rate/8, #samp_rate
+            "signal", #name
             1, #number of inputs
             None # parent
         )
@@ -144,22 +192,14 @@ class RTL_SDR_FM(gr.top_block, Qt.QWidget):
             1,
             firdes.low_pass(
                 1,
-                samp_rate,
-                30,
-                15,
-                window.WIN_HAMMING,
-                6.76))
-        self.low_pass_filter_0 = filter.fir_filter_ccf(
-            2,
-            firdes.low_pass(
-                1,
-                samp_rate,
-                100,
-                50,
+                (samp_rate/8),
+                20e3,
+                10e3,
                 window.WIN_HAMMING,
                 6.76))
         self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(4, firdes.low_pass(1.0, 2e6, 100e3, 50e3), 0, 2E6)
         self.digital_binary_slicer_fb_0 = digital.binary_slicer_fb()
+        self.blocks_uchar_to_float_0 = blocks.uchar_to_float()
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(1)
         self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, '/home/hamburger/Desktop/SDR_detector/GRC_Companion/fob_output.bin', False)
         self.blocks_file_sink_0.set_unbuffered(False)
@@ -171,9 +211,10 @@ class RTL_SDR_FM(gr.top_block, Qt.QWidget):
         ##################################################
         self.connect((self.blocks_complex_to_mag_0, 0), (self.low_pass_filter_1, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.digital_binary_slicer_fb_0, 0))
+        self.connect((self.blocks_uchar_to_float_0, 0), (self.qtgui_time_sink_x_1, 0))
         self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_file_sink_0, 0))
-        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.low_pass_filter_0, 0))
-        self.connect((self.low_pass_filter_0, 0), (self.blocks_complex_to_mag_0, 0))
+        self.connect((self.digital_binary_slicer_fb_0, 0), (self.blocks_uchar_to_float_0, 0))
+        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.blocks_complex_to_mag_0, 0))
         self.connect((self.low_pass_filter_1, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.low_pass_filter_1, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
@@ -199,9 +240,9 @@ class RTL_SDR_FM(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 100, 50, window.WIN_HAMMING, 6.76))
-        self.low_pass_filter_1.set_taps(firdes.low_pass(1, self.samp_rate, 30, 15, window.WIN_HAMMING, 6.76))
-        self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
+        self.low_pass_filter_1.set_taps(firdes.low_pass(1, (self.samp_rate/8), 20e3, 10e3, window.WIN_HAMMING, 6.76))
+        self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate/8)
+        self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate/8)
         self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
 
 
